@@ -167,60 +167,44 @@ export default function Dashboard() {
 
   const CreateContentView = () => {
     const [productInput, setProductInput] = useState("");
+    const [targetAudience, setTargetAudience] = useState("");
+    const [selectedPlatform, setSelectedPlatform] = useState<"meta" | "tiktok" | "both">("both");
+    const [selectedTone, setSelectedTone] = useState<"professional" | "casual" | "humorous" | "inspirational">("inspirational");
     const [generatedContent, setGeneratedContent] = useState<any>(null);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    const generateContent = () => {
+    const generateContent = async () => {
       setIsGenerating(true);
+      setError(null);
       
-      // Simulação de geração com IA
-      setTimeout(() => {
-        setGeneratedContent({
-          scripts: [
-            {
-              id: 1,
-              title: "Roteiro 1 - Transformação Rápida",
-              duration: "15s",
-              script: `[GANCHO - 3s]\n"Você sabia que pode falar inglês fluente em 6 meses?"\n\n[PROBLEMA - 4s]\n"A maioria desiste porque usa métodos tradicionais e chatos."\n\n[SOLUÇÃO - 5s]\n"Nosso método revolucionário usa IA para criar aulas personalizadas para VOCÊ. Aprenda no seu ritmo, com temas que você ama."\n\n[CTA - 3s]\n"Clique no link e comece GRÁTIS hoje!"`,
-              tone: "Motivacional e direto"
-            },
-            {
-              id: 2,
-              title: "Roteiro 2 - Depoimento Social",
-              duration: "20s",
-              script: `[ABERTURA - 4s]\n"Há 6 meses eu não conseguia pedir um café em inglês..."\n\n[TRANSFORMAÇÃO - 8s]\n"Hoje eu trabalho em uma empresa internacional e faço reuniões em inglês todos os dias. O segredo? Este curso mudou tudo pra mim."\n\n[PROVA - 5s]\n"Mais de 50 mil alunos já transformaram suas carreiras. Você pode ser o próximo."\n\n[CTA - 3s]\n"Teste grátis por 7 dias. Link na bio!"`,
-              tone: "Inspirador e autêntico"
-            },
-            {
-              id: 3,
-              title: "Roteiro 3 - Urgência e Escassez",
-              duration: "12s",
-              script: `[GANCHO - 3s]\n"ATENÇÃO: Últimas 24h com 70% OFF!"\n\n[BENEFÍCIO - 5s]\n"Aprenda inglês do zero ao avançado com professores nativos e IA personalizada."\n\n[URGÊNCIA - 4s]\n"Apenas 50 vagas restantes. Não perca essa chance!"\n\n[CTA]\n"Link na bio. Corre!"`,
-              tone: "Urgente e persuasivo"
-            }
-          ],
-          captions: [
-            {
-              id: 1,
-              text: "🚀 Falar inglês fluente em 6 meses? SIM, é possível! 🎯\n\nNosso método revolucionário usa IA para criar aulas 100% personalizadas para você. Aprenda no seu ritmo, com temas que você AMA! 💜\n\n✨ Mais de 50 mil alunos já transformaram suas vidas\n⏰ Comece GRÁTIS hoje\n🎁 Bônus exclusivo para novos alunos\n\n👉 Link na bio para começar agora!\n\n#inglês #aprenderingles #cursodeingles #fluencia #transformação",
-              cta: "Link na bio - Teste GRÁTIS",
-              platform: "Instagram/Facebook"
-            },
-            {
-              id: 2,
-              text: "você ainda acha que inglês é difícil? 🤔\n\nesse método mudou tudo pra mim e pode mudar pra você também 🔥\n\naulas personalizadas com IA + professores nativos + comunidade incrível = fluência garantida ✨\n\nteste grátis por 7 dias, link na bio 👆\n\n#ingles #tiktokaulas #aprenda #fluencia #transformacao #cursoonline",
-              cta: "Link na bio 👆",
-              platform: "TikTok"
-            }
-          ],
-          thumbnail: {
-            suggestion: "Imagem de pessoa sorrindo com legenda grande: 'INGLÊS FLUENTE EM 6 MESES' em amarelo/branco sobre fundo roxo/azul gradiente. Adicione ícone de foguete 🚀 no canto.",
-            colors: ["#6B46C1", "#EC4899", "#F59E0B"],
-            elements: ["Rosto expressivo", "Texto grande e legível", "Cores vibrantes", "Emoji chamativo"]
-          }
+      try {
+        const response = await fetch('/api/generate-content', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            productDescription: productInput,
+            targetAudience: targetAudience || undefined,
+            platform: selectedPlatform,
+            tone: selectedTone
+          }),
         });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Erro ao gerar conteúdo');
+        }
+
+        const data = await response.json();
+        setGeneratedContent(data);
+      } catch (err) {
+        console.error('Erro:', err);
+        setError(err instanceof Error ? err.message : 'Erro desconhecido ao gerar conteúdo');
+      } finally {
         setIsGenerating(false);
-      }, 2000);
+      }
     };
 
     return (
@@ -228,13 +212,13 @@ export default function Dashboard() {
         {/* Input de Produto */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            Criar Novo Conteúdo com IA
+            Criar Novo Conteúdo com ChatGPT
           </h2>
           
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Descreva seu produto ou serviço
+                Descreva seu produto ou serviço *
               </label>
               <textarea
                 value={productInput}
@@ -245,6 +229,68 @@ export default function Dashboard() {
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Público-alvo (opcional)
+              </label>
+              <input
+                type="text"
+                value={targetAudience}
+                onChange={(e) => setTargetAudience(e.target.value)}
+                placeholder="Ex: Adultos de 25-45 anos que querem crescer na carreira"
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
+              />
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Plataforma
+                </label>
+                <select
+                  value={selectedPlatform}
+                  onChange={(e) => setSelectedPlatform(e.target.value as any)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
+                >
+                  <option value="both">Ambas (Meta + TikTok)</option>
+                  <option value="meta">Meta (Facebook/Instagram)</option>
+                  <option value="tiktok">TikTok</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  Tom do conteúdo
+                </label>
+                <select
+                  value={selectedTone}
+                  onChange={(e) => setSelectedTone(e.target.value as any)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all"
+                >
+                  <option value="inspirational">Inspirador</option>
+                  <option value="professional">Profissional</option>
+                  <option value="casual">Casual</option>
+                  <option value="humorous">Humorístico</option>
+                </select>
+              </div>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-semibold text-red-900 dark:text-red-300 mb-1">
+                      Erro ao gerar conteúdo
+                    </h4>
+                    <p className="text-sm text-red-700 dark:text-red-400">
+                      {error}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <button
               onClick={generateContent}
               disabled={!productInput || isGenerating}
@@ -253,12 +299,12 @@ export default function Dashboard() {
               {isGenerating ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Gerando conteúdo mágico...
+                  ChatGPT está gerando seu conteúdo...
                 </>
               ) : (
                 <>
                   <Sparkles className="w-5 h-5" />
-                  Gerar Conteúdo com IA
+                  Gerar Conteúdo com ChatGPT
                 </>
               )}
             </button>
@@ -272,7 +318,7 @@ export default function Dashboard() {
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                 <Video className="w-6 h-6 text-purple-600" />
-                Roteiros de Vídeo Gerados
+                Roteiros de Vídeo Gerados por ChatGPT
               </h3>
               
               <div className="grid md:grid-cols-3 gap-6">
@@ -294,7 +340,10 @@ export default function Dashboard() {
                     </p>
                     
                     <div className="flex gap-2">
-                      <button className="flex-1 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 py-2 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-all flex items-center justify-center gap-2">
+                      <button 
+                        onClick={() => navigator.clipboard.writeText(script.script)}
+                        className="flex-1 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 py-2 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-all flex items-center justify-center gap-2"
+                      >
                         <Copy className="w-4 h-4" />
                         Copiar
                       </button>
@@ -311,7 +360,7 @@ export default function Dashboard() {
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                 <Sparkles className="w-6 h-6 text-pink-600" />
-                Legendas com CTA
+                Legendas com CTA (ChatGPT)
               </h3>
               
               <div className="grid md:grid-cols-2 gap-6">
@@ -334,7 +383,10 @@ export default function Dashboard() {
                     </div>
                     
                     <div className="flex gap-2">
-                      <button className="flex-1 bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 py-2 rounded-lg hover:bg-pink-200 dark:hover:bg-pink-900/50 transition-all flex items-center justify-center gap-2">
+                      <button 
+                        onClick={() => navigator.clipboard.writeText(caption.text)}
+                        className="flex-1 bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 py-2 rounded-lg hover:bg-pink-200 dark:hover:bg-pink-900/50 transition-all flex items-center justify-center gap-2"
+                      >
                         <Copy className="w-4 h-4" />
                         Copiar
                       </button>
@@ -351,7 +403,7 @@ export default function Dashboard() {
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                 <ImageIcon className="w-6 h-6 text-blue-600" />
-                Sugestão de Thumbnail
+                Sugestão de Thumbnail (ChatGPT)
               </h3>
               
               <div className="grid md:grid-cols-2 gap-8">
@@ -390,9 +442,9 @@ export default function Dashboard() {
                 
                 <div className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl p-8 flex items-center justify-center">
                   <div className="text-center text-white">
-                    <div className="text-4xl font-bold mb-2">INGLÊS FLUENTE</div>
-                    <div className="text-2xl mb-4">EM 6 MESES 🚀</div>
-                    <div className="text-sm opacity-80">Preview da Thumbnail</div>
+                    <div className="text-4xl font-bold mb-2">PREVIEW</div>
+                    <div className="text-2xl mb-4">THUMBNAIL</div>
+                    <div className="text-sm opacity-80">Criado com ChatGPT</div>
                   </div>
                 </div>
               </div>
@@ -485,7 +537,7 @@ export default function Dashboard() {
                 <Clock className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-1">
-                    Melhor Horário Sugerido
+                    Melhor Horário Sugerido (ChatGPT)
                   </h4>
                   <p className="text-sm text-blue-700 dark:text-blue-400">
                     Baseado em análises anteriores, segunda-feira às 18h tem 35% mais engajamento para seu público.
@@ -570,7 +622,7 @@ export default function Dashboard() {
       <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
           <BarChart3 className="w-6 h-6 text-purple-600" />
-          Performance dos Criativos
+          Performance dos Criativos (Análise ChatGPT)
         </h2>
 
         <div className="space-y-6">
@@ -640,7 +692,7 @@ export default function Dashboard() {
                         ? "text-green-900 dark:text-green-300" 
                         : "text-yellow-900 dark:text-yellow-300"
                     }`}>
-                      Feedback da IA
+                      Feedback do ChatGPT
                     </h4>
                     <p className={`text-sm ${
                       item.performance.startsWith("+") 
@@ -744,15 +796,15 @@ export default function Dashboard() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               {activeTab === "overview" && "Visão Geral"}
-              {activeTab === "create" && "Criar Conteúdo"}
+              {activeTab === "create" && "Criar Conteúdo com ChatGPT"}
               {activeTab === "schedule" && "Agendamento"}
               {activeTab === "analytics" && "Analytics"}
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
               {activeTab === "overview" && "Conecte suas contas e comece a criar"}
-              {activeTab === "create" && "Gere roteiros, legendas e thumbnails com IA"}
+              {activeTab === "create" && "Gere roteiros, legendas e thumbnails com inteligência artificial"}
               {activeTab === "schedule" && "Agende suas publicações"}
-              {activeTab === "analytics" && "Acompanhe o desempenho das suas campanhas"}
+              {activeTab === "analytics" && "Acompanhe o desempenho das suas campanhas com análise de IA"}
             </p>
           </div>
 
