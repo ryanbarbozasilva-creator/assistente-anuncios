@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Check, Menu, X, Zap, Calendar, BarChart3, Lightbulb, Users, Sparkles, ArrowRight, Star, Send } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -87,6 +88,12 @@ export default function Home() {
               <button onClick={() => scrollToSection("contact")} className="text-gray-700 dark:text-gray-300 hover:text-purple-600 transition-colors">
                 Contato
               </button>
+              <Link
+                href="/dashboard"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105"
+              >
+                Acessar App
+              </Link>
               <button
                 onClick={toggleDarkMode}
                 className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
@@ -119,6 +126,12 @@ export default function Home() {
               <button onClick={() => scrollToSection("contact")} className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
                 Contato
               </button>
+              <Link
+                href="/dashboard"
+                className="block w-full text-center bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg font-semibold"
+              >
+                Acessar App
+              </Link>
             </div>
           )}
         </div>
@@ -144,11 +157,15 @@ export default function Home() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-xl font-semibold hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play" className="h-10" />
-                </button>
-                <button className="flex items-center justify-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-8 py-4 rounded-xl font-semibold hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store" className="h-10" />
+                <Link
+                  href="/dashboard"
+                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-xl font-semibold hover:shadow-2xl transition-all duration-300 hover:scale-105"
+                >
+                  <Sparkles className="w-5 h-5" />
+                  Começar Agora
+                </Link>
+                <button className="flex items-center justify-center gap-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-300 dark:border-gray-600 px-8 py-4 rounded-xl font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105">
+                  Ver Demo
                 </button>
               </div>
 
@@ -328,9 +345,12 @@ export default function Home() {
                 ))}
               </ul>
 
-              <button className="w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white py-4 rounded-xl font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-300">
+              <Link
+                href="/checkout?plan=free&billing=monthly"
+                className="block w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white py-4 rounded-xl font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-300 text-center"
+              >
                 Começar Grátis
-              </button>
+              </Link>
             </div>
 
             {/* Plano Pro - Destaque */}
@@ -368,9 +388,12 @@ export default function Home() {
                 ))}
               </ul>
 
-              <button className="w-full bg-white text-purple-600 py-4 rounded-xl font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <Link
+                href={`/checkout?plan=pro&billing=${billingCycle}`}
+                className="block w-full bg-white text-purple-600 py-4 rounded-xl font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105 text-center"
+              >
                 Assinar Pro
-              </button>
+              </Link>
             </div>
 
             {/* Plano Agência */}
@@ -405,9 +428,12 @@ export default function Home() {
                 ))}
               </ul>
 
-              <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105">
+              <Link
+                href={`/checkout?plan=agency&billing=${billingCycle}`}
+                className="block w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-semibold hover:shadow-xl transition-all duration-300 hover:scale-105 text-center"
+              >
                 Assinar Agência
-              </button>
+              </Link>
             </div>
           </div>
 
